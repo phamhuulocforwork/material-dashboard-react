@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   List,
@@ -10,26 +10,60 @@ import {
   Typography,
   IconButton,
   Paper,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 function TodoList() {
-  const [todos, setTodos] = useState([
-    { id: 1, text: "Công việc 1", completed: false },
-    { id: 2, text: "Công việc 2", completed: true },
-    { id: 3, text: "Công việc 3", completed: false },
-  ]);
+  const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editingText, setEditingText] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  useEffect(() => {
+    const savedTodos = localStorage.getItem("todos");
+    if (savedTodos) {
+      setTodos(JSON.parse(savedTodos));
+    } else {
+      setTodos([
+        { id: 1, text: "Công việc 1", completed: false },
+        { id: 2, text: "Công việc 2", completed: true },
+        { id: 3, text: "Công việc 3", completed: false },
+      ]);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({
+      open: true,
+      message,
+      severity,
+    });
+  };
 
   const handleAddTodo = () => {
     if (newTodo.trim() !== "") {
-      const newTodoItem = {
+      const newTask = {
         id: Date.now(),
         text: newTodo.trim(),
         completed: false,
       };
-      setTodos([...todos, newTodoItem]);
+      setTodos([...todos, newTask]);
       setNewTodo("");
+      showSnackbar("Đã thêm công việc thành công!");
     }
   };
 
@@ -41,6 +75,30 @@ function TodoList() {
 
   const handleDeleteTodo = (id) => {
     setTodos(todos.filter((todo) => todo.id !== id));
+    showSnackbar("Đã xóa công việc!");
+  };
+
+  const handleEditTodo = (id, text) => {
+    setEditingId(id);
+    setEditingText(text);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingText.trim() !== "") {
+      setTodos(
+        todos.map((todo) =>
+          todo.id === editingId ? { ...todo, text: editingText.trim() } : todo
+        )
+      );
+      setEditingId(null);
+      setEditingText("");
+      showSnackbar("Đã cập nhật công việc!");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingText("");
   };
 
   return (
@@ -57,7 +115,7 @@ function TodoList() {
             placeholder="..."
             value={newTodo}
             onChange={(e) => setNewTodo(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleAddTodo()}
+            onKeyDown={(e) => e.key === "Enter" && handleAddTodo()}
           />
           <Button variant="contained" onClick={handleAddTodo} disabled={!newTodo.trim()}>
             Thêm
@@ -69,13 +127,43 @@ function TodoList() {
             <ListItem
               key={todo.id}
               secondaryAction={
-                <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => handleDeleteTodo(todo.id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                editingId === todo.id ? (
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <IconButton
+                      edge="end"
+                      aria-label="save"
+                      onClick={handleSaveEdit}
+                      color="primary"
+                    >
+                      <SaveIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="cancel"
+                      onClick={handleCancelEdit}
+                      color="secondary"
+                    >
+                      <CancelIcon />
+                    </IconButton>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <IconButton
+                      edge="end"
+                      aria-label="edit"
+                      onClick={() => handleEditTodo(todo.id, todo.text)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleDeleteTodo(todo.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                )
               }
               sx={{
                 textDecoration: todo.completed ? "line-through" : "none",
@@ -87,17 +175,40 @@ function TodoList() {
                 onChange={() => handleToggleTodo(todo.id)}
                 color="primary"
               />
-              <ListItemText primary={todo.text} />
+              {editingId === todo.id ? (
+                <TextField
+                  fullWidth
+                  value={editingText}
+                  onChange={(e) => setEditingText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveEdit();
+                    if (e.key === "Escape") handleCancelEdit();
+                  }}
+                  variant="standard"
+                  autoFocus
+                />
+              ) : (
+                <ListItemText primary={todo.text} />
+              )}
             </ListItem>
           ))}
         </List>
-
-        {todos.length === 0 && (
-          <Typography variant="body1" align="center" sx={{ marginTop: 3, color: "text.secondary" }}>
-            Không có công việc nào. Hãy thêm công việc đầu tiên!
-          </Typography>
-        )}
       </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
