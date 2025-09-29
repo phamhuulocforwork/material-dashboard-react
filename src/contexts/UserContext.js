@@ -29,7 +29,7 @@ export const UserProvider = ({ children }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [sortBy, setSortBy] = useState('hoTen');
+  const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
 
   useEffect(() => {
@@ -58,6 +58,11 @@ export const UserProvider = ({ children }) => {
       user.vaiTro.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
+      // Only sort if sortBy is not empty
+      if (!sortBy) {
+        return 0; // No sorting
+      }
+
       const aValue = a[sortBy].toLowerCase();
       const bValue = b[sortBy].toLowerCase();
 
