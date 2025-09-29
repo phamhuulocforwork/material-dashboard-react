@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const UserContext = createContext();
 
@@ -11,21 +11,9 @@ export const useUsers = () => {
 };
 
 export const UserProvider = ({ children }) => {
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      hoTen: "Nguyễn Văn A",
-      email: "nguyenvana@gmail.com",
-      vaiTro: "Admin"
-    },
-    {
-      id: 2,
-      hoTen: "Trần Thị B",
-      email: "tranthib@gmail.com",
-      vaiTro: "User"
-    }
-  ]);
-
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showLoading, setShowLoading] = useState(false);
   const [formData, setFormData] = useState({
     hoTen: "",
     email: "",
@@ -34,9 +22,55 @@ export const UserProvider = ({ children }) => {
 
   const [editingUser, setEditingUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('create');
+  const [modalTitle, setModalTitle] = useState('');
 
-  const filteredUsers = users.filter(user =>
-    user.hoTen.toLowerCase().includes(searchTerm.toLowerCase())
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [sortBy, setSortBy] = useState('hoTen');
+  const [sortOrder, setSortOrder] = useState('asc');
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/user.json');
+        let data = await response.json();
+
+        setUsers(data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+        setShowLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const filteredAndSortedUsers = users
+    .filter(user =>
+      user.hoTen.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.vaiTro.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const aValue = a[sortBy].toLowerCase();
+      const bValue = b[sortBy].toLowerCase();
+
+      if (sortOrder === 'asc') {
+        return aValue.localeCompare(bValue, 'vi');
+      } else {
+        return bValue.localeCompare(aValue, 'vi');
+      }
+    });
+
+  const paginatedUsers = filteredAndSortedUsers.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
   );
 
   const handleInputChange = (e) => {
@@ -47,15 +81,56 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
-  const handleAddUser = () => {
-    if (formData.hoTen && formData.email && formData.vaiTro) {
-      const newUser = {
-        id: Math.max(0, ...users.map(user => user.id)) + 1,
-        ...formData
-      };
-      setUsers(prev => [...prev, newUser]);
-      setFormData({ hoTen: "", email: "", vaiTro: "" });
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
     }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const openCreateModal = () => {
+    setModalMode('create');
+    setModalTitle('Thêm người dùng mới');
+    setFormData({ hoTen: "", email: "", vaiTro: "" });
+    setEditingUser(null);
+    setModalOpen(true);
+  };
+
+  const openEditModal = (user) => {
+    setModalMode('edit');
+    setModalTitle('Chỉnh sửa người dùng');
+    setEditingUser(user);
+    setFormData({
+      hoTen: user.hoTen,
+      email: user.email,
+      vaiTro: user.vaiTro
+    });
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingUser(null);
+    setFormData({ hoTen: "", email: "", vaiTro: "" });
+  };
+
+  const handleAddUser = () => {
+    const newUser = {
+      id: Math.max(0, ...users.map(user => user.id)) + 1,
+      ...formData
+    };
+    setUsers(prev => [...prev, newUser]);
   };
 
   const handleDeleteUser = (id) => {
@@ -63,47 +138,53 @@ export const UserProvider = ({ children }) => {
   };
 
   const handleEditUser = (user) => {
-    setEditingUser(user);
-    setFormData({
-      hoTen: user.hoTen,
-      email: user.email,
-      vaiTro: user.vaiTro
-    });
+    openEditModal(user);
   };
 
   const handleSaveEdit = () => {
-    if (formData.hoTen && formData.email && formData.vaiTro) {
-      setUsers(prev => prev.map(user =>
-        user.id === editingUser.id
-          ? { ...user, ...formData }
-          : user
-      ));
-      setEditingUser(null);
-      setFormData({ hoTen: "", email: "", vaiTro: "" });
-    }
+    setUsers(prev => prev.map(user =>
+      user.id === editingUser.id
+        ? { ...user, ...formData }
+        : user
+    ));
   };
 
   const handleCancelEdit = () => {
-    setEditingUser(null);
-    setFormData({ hoTen: "", email: "", vaiTro: "" });
+    closeModal();
   };
 
   const value = {
     users,
     setUsers,
+    loading,
+    showLoading,
     formData,
     setFormData,
     editingUser,
     setEditingUser,
     searchTerm,
     setSearchTerm,
-    filteredUsers,
+    filteredAndSortedUsers,
+    paginatedUsers,
+    page,
+    rowsPerPage,
+    sortBy,
+    sortOrder,
+    modalOpen,
+    modalMode,
+    modalTitle,
     handleInputChange,
     handleAddUser,
     handleDeleteUser,
     handleEditUser,
     handleSaveEdit,
-    handleCancelEdit
+    handleCancelEdit,
+    handleSort,
+    handleChangePage,
+    handleChangeRowsPerPage,
+    openCreateModal,
+    openEditModal,
+    closeModal
   };
 
   return (

@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "hoTen": "Nguyễn Văn An",
+    "email": "nguyenvana@example.com",
+    "vaiTro": "Admin"
+  },
+  {
+    "id": 2,
+    "hoTen": "Trần Thị Bình",
+    "email": "tranthib@example.com",
+    "vaiTro": "User"
+  },
+  {
+    "id": 3,
+    "hoTen": "Lê Văn Cường",
+    "email": "levanc@example.com",
+    "vaiTro": "Moderator"
+  },
+  {
+    "id": 4,
+    "hoTen": "Phạm Thị Dung",
+    "email": "phamthid@example.com",
+    "vaiTro": "User"
+  },
+  {
+    "id": 5,
+    "hoTen": "Hoàng Văn Em",
+    "email": "hoangvane@example.com",
+    "vaiTro": "Admin"
+  },
+  {
+    "id": 6,
+    "hoTen": "Đỗ Thị Lan",
+    "email": "dothil@example.com",
+    "vaiTro": "User"
+  },
+  {
+    "id": 7,
+    "hoTen": "Vũ Văn Minh",
+    "email": "vuvanm@example.com",
+    "vaiTro": "Moderator"
+  },
+  {
+    "id": 8,
+    "hoTen": "Bùi Thị Hoa",
+    "email": "buithih@example.com",
+    "vaiTro": "User"
+  },
+  {
+    "id": 9,
+    "hoTen": "Ngô Văn Hùng",
+    "email": "ngovanh@example.com",
+    "vaiTro": "Admin"
+  },
+  {
+    "id": 10,
+    "hoTen": "Đinh Thị Kim",
+    "email": "dinthik@example.com",
+    "vaiTro": "User"
+  },
+  {
+    "id": 11,
+    "hoTen": "Lý Văn Nam",
+    "email": "lyvann@example.com",
+    "vaiTro": "Moderator"
+  },
+  {
+    "id": 12,
+    "hoTen": "Mai Thị Oanh",
+    "email": "maithio@example.com",
+    "vaiTro": "User"
+  },
+  {
+    "id": 13,
+    "hoTen": "Trịnh Văn Phong",
+    "email": "trinhvanp@example.com",
+    "vaiTro": "Admin"
+  },
+  {
+    "id": 14,
+    "hoTen": "Đào Thị Quỳnh",
+    "email": "daothiq@example.com",
+    "vaiTro": "User"
+  },
+  {
+    "id": 15,
+    "hoTen": "Vương Văn Sơn",
+    "email": "vuongvans@example.com",
+    "vaiTro": "Moderator"
+  }
+]

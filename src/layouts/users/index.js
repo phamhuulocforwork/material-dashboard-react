@@ -5,14 +5,18 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import { UserProvider } from "contexts/UserContext";
+import { UserProvider, useUsers } from "contexts/UserContext";
 import UserSearch from "./components/UserSearch";
 import UserForm from "./components/UserForm";
 import UserTable from "./components/UserTable";
+import UserModal from "./components/UserModal";
+import MDButton from "components/MDButton";
 
-function Users() {
+const UsersContent = () => {
+  const { modalOpen, modalTitle, openCreateModal, closeModal } = useUsers();
+
   return (
-    <UserProvider>
+    <>
       <DashboardLayout>
         <DashboardNavbar />
         <MDBox pt={6} pb={3}>
@@ -28,14 +32,22 @@ function Users() {
                   bgColor="info"
                   borderRadius="lg"
                   coloredShadow="info"
+                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                 >
                   <MDTypography variant="h6" color="white">
                     Danh sách Người dùng
                   </MDTypography>
+                  <MDButton
+                    variant="contained"
+                    color="white"
+                    size="small"
+                    onClick={openCreateModal}
+                  >
+                    + Thêm người dùng
+                  </MDButton>
                 </MDBox>
                 <MDBox pt={3}>
                   <UserSearch />
-                  <UserForm />
                   <UserTable />
                 </MDBox>
               </Card>
@@ -43,6 +55,19 @@ function Users() {
           </Grid>
         </MDBox>
       </DashboardLayout>
+      <UserModal
+        open={modalOpen}
+        onClose={closeModal}
+        title={modalTitle}
+      />
+    </>
+  );
+};
+
+function Users() {
+  return (
+    <UserProvider>
+      <UsersContent />
     </UserProvider>
   );
 }

@@ -10,11 +10,11 @@ const UserSearch = () => {
     <Box sx={{ mb: 3, px: 2 }}>
       <TextField
         fullWidth
-        label="Tìm kiếm theo họ tên"
+        label="Tìm kiếm người dùng"
         variant="outlined"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Nhập tên để tìm kiếm..."
+        placeholder="Tìm kiếm theo họ tên, email hoặc vai trò..."
       />
     </Box>
   );
