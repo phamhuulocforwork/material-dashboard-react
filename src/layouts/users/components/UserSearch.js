@@ -1,20 +1,39 @@
-import React from 'react';
-import TextField from "@mui/material/TextField";
+import React from "react";
 import Box from "@mui/material/Box";
-import { useUsers } from 'contexts/UserContext';
+import TextField from "@mui/material/TextField";
+import SearchIcon from "@mui/icons-material/Search";
+import InputAdornment from "@mui/material/InputAdornment";
+import { useUsers } from "contexts/UserContext";
 
 const UserSearch = () => {
   const { searchTerm, setSearchTerm } = useUsers();
 
   return (
-    <Box sx={{ mb: 3, px: 2 }}>
+    <Box sx={{ px: 3, pb: 2 }}>
       <TextField
         fullWidth
-        label="Tìm kiếm người dùng"
         variant="outlined"
+        placeholder="Tìm kiếm theo first name, last name hoặc email..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Tìm kiếm theo họ tên, email hoặc vai trò..."
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            backgroundColor: "white",
+            "& fieldset": {
+              borderColor: "#e0e0e0",
+            },
+            "&:hover fieldset": {
+              borderColor: "#1976d2",
+            },
+          },
+        }}
       />
     </Box>
   );

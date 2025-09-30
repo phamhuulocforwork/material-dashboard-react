@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
+import { usersAPI } from 'services/api';
 
 const UserContext = createContext();
 
@@ -16,7 +17,8 @@ const ACTIONS = {
   SET_PAGE: 'SET_PAGE',
   SET_ROWS_PER_PAGE: 'SET_ROWS_PER_PAGE',
   SET_SNACKBAR: 'SET_SNACKBAR',
-  CLOSE_SNACKBAR: 'CLOSE_SNACKBAR'
+  CLOSE_SNACKBAR: 'CLOSE_SNACKBAR',
+  SET_TOTAL_PAGES: 'SET_TOTAL_PAGES'
 };
 
 const initialState = {
@@ -27,8 +29,9 @@ const initialState = {
   modalMode: 'create',
   modalTitle: '',
   editingUser: null,
-  page: 0,
-  rowsPerPage: 5,
+  page: 1,
+  rowsPerPage: 6,
+  totalPages: 1,
   sortBy: '',
   sortOrder: 'asc',
   snackbar: {
@@ -44,7 +47,7 @@ function userReducer(state, action) {
       return { ...state, users: action.payload };
     
     case ACTIONS.ADD_USER:
-      return { ...state, users: [...state.users, action.payload] };
+      return { ...state, users: [action.payload, ...state.users] };
     
     case ACTIONS.UPDATE_USER:
       return {
@@ -64,7 +67,7 @@ function userReducer(state, action) {
       return { ...state, loading: action.payload };
     
     case ACTIONS.SET_SEARCH_TERM:
-      return { ...state, searchTerm: action.payload, page: 0 };
+      return { ...state, searchTerm: action.payload, page: 1 };
     
     case ACTIONS.SET_MODAL_OPEN:
       return {
@@ -96,7 +99,10 @@ function userReducer(state, action) {
       return { ...state, page: action.payload };
     
     case ACTIONS.SET_ROWS_PER_PAGE:
-      return { ...state, rowsPerPage: action.payload, page: 0 };
+      return { ...state, rowsPerPage: action.payload, page: 1 };
+    
+    case ACTIONS.SET_TOTAL_PAGES:
+      return { ...state, totalPages: action.payload };
     
     case ACTIONS.SET_SNACKBAR:
       return {
@@ -134,9 +140,18 @@ export const UserProvider = ({ children }) => {
     const fetchUsers = async () => {
       try {
         dispatch({ type: ACTIONS.SET_LOADING, payload: true });
-        const response = await fetch('/user.json');
-        let data = await response.json();
-        dispatch({ type: ACTIONS.SET_USERS, payload: data });
+        const data = await usersAPI.getUsers(state.page);
+        
+        const transformedUsers = data.data.map(user => ({
+          id: user.id,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          avatar: user.avatar
+        }));
+        
+        dispatch({ type: ACTIONS.SET_USERS, payload: transformedUsers });
+        dispatch({ type: ACTIONS.SET_TOTAL_PAGES, payload: data.total_pages });
       } catch (error) {
         console.error('Error fetching users:', error);
         showSnackbar('Lỗi khi tải danh sách người dùng!', 'error');
@@ -146,35 +161,18 @@ export const UserProvider = ({ children }) => {
     };
 
     fetchUsers();
-  }, []);
+  }, [state.page]);
 
-  const filteredAndSortedUsers = useMemo(() => {
-    return state.users
-      .filter(user =>
-        user.hoTen.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
-        user.vaiTro.toLowerCase().includes(state.searchTerm.toLowerCase())
-      )
-      .sort((a, b) => {
-        if (!state.sortBy) return 0;
-
-        const aValue = a[state.sortBy].toLowerCase();
-        const bValue = b[state.sortBy].toLowerCase();
-
-        if (state.sortOrder === 'asc') {
-          return aValue.localeCompare(bValue, 'vi');
-        } else {
-          return bValue.localeCompare(aValue, 'vi');
-        }
-      });
-  }, [state.users, state.searchTerm, state.sortBy, state.sortOrder]);
-
-  const paginatedUsers = useMemo(() => {
-    return filteredAndSortedUsers.slice(
-      state.page * state.rowsPerPage,
-      state.page * state.rowsPerPage + state.rowsPerPage
-    );
-  }, [filteredAndSortedUsers, state.page, state.rowsPerPage]);
+  const filteredUsers = useMemo(() => {
+    return state.users.filter(user => {
+      const searchLower = state.searchTerm.toLowerCase();
+      return (
+        user.first_name?.toLowerCase().includes(searchLower) ||
+        user.last_name?.toLowerCase().includes(searchLower) ||
+        user.email?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [state.users, state.searchTerm]);
 
   const showSnackbar = (message, severity = 'success') => {
     dispatch({
@@ -187,12 +185,9 @@ export const UserProvider = ({ children }) => {
     dispatch({ type: ACTIONS.CLOSE_SNACKBAR });
   };
 
-  const handleAddUser = (userData) => {
+  const handleAddUser = async (userData) => {
     try {
-      const newUser = {
-        id: Math.max(0, ...state.users.map(user => user.id)) + 1,
-        ...userData
-      };
+      const newUser = await usersAPI.createUser(userData);
       dispatch({ type: ACTIONS.ADD_USER, payload: newUser });
       dispatch({ type: ACTIONS.SET_MODAL_CLOSED });
       showSnackbar('Thêm người dùng thành công!', 'success');
@@ -203,11 +198,12 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const handleUpdateUser = (id, userData) => {
+  const handleUpdateUser = async (id, userData) => {
     try {
+      const updatedUser = await usersAPI.updateUser(id, userData);
       dispatch({
         type: ACTIONS.UPDATE_USER,
-        payload: { id, data: userData }
+        payload: { id, data: updatedUser }
       });
       dispatch({ type: ACTIONS.SET_MODAL_CLOSED });
       showSnackbar('Cập nhật người dùng thành công!', 'success');
@@ -218,8 +214,9 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const handleDeleteUser = (id) => {
+  const handleDeleteUser = async (id) => {
     try {
+      await usersAPI.deleteUser(id);
       dispatch({ type: ACTIONS.DELETE_USER, payload: id });
       showSnackbar('Xóa người dùng thành công!', 'success');
     } catch (error) {
@@ -262,7 +259,7 @@ export const UserProvider = ({ children }) => {
   };
 
   const handleChangePage = (event, newPage) => {
-    dispatch({ type: ACTIONS.SET_PAGE, payload: newPage });
+    dispatch({ type: ACTIONS.SET_PAGE, payload: newPage + 1 });
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -274,20 +271,19 @@ export const UserProvider = ({ children }) => {
   };
 
   const value = {
-    users: state.users,
+    users: filteredUsers,
     loading: state.loading,
     searchTerm: state.searchTerm,
     modalOpen: state.modalOpen,
     modalMode: state.modalMode,
     modalTitle: state.modalTitle,
     editingUser: state.editingUser,
-    page: state.page,
+    page: state.page - 1,
     rowsPerPage: state.rowsPerPage,
+    totalPages: state.totalPages,
     sortBy: state.sortBy,
     sortOrder: state.sortOrder,
     snackbar: state.snackbar,
-    filteredAndSortedUsers,
-    paginatedUsers,
     
     handleAddUser,
     handleUpdateUser,

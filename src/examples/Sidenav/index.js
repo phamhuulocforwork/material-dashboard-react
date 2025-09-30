@@ -16,7 +16,7 @@ Coded by www.creative-tim.com
 import { useEffect } from "react";
 
 // react-router-dom components
-import { useLocation, NavLink } from "react-router-dom";
+import { useLocation, NavLink, useNavigate } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
@@ -47,11 +47,16 @@ import {
   setWhiteSidenav,
 } from "context";
 
+// Auth context
+import { useAuth } from "contexts/AuthContext";
+
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
+  const navigate = useNavigate();
+  const { logout, isAuthenticated } = useAuth();
 
   let textColor = "white";
 
@@ -62,6 +67,11 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   }
 
   const closeSidenav = () => setMiniSidenav(dispatch, true);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/authentication/sign-in");
+  };
 
   useEffect(() => {
     // A function that sets the mini state of the sidenav.
@@ -179,19 +189,19 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         }
       />
       <List>{renderRoutes}</List>
-      <MDBox p={2} mt="auto">
-        <MDButton
-          component="a"
-          href="https://www.creative-tim.com/product/material-dashboard-pro-react"
-          target="_blank"
-          rel="noreferrer"
-          variant="gradient"
-          color={sidenavColor}
-          fullWidth
-        >
-          upgrade to pro
-        </MDButton>
-      </MDBox>
+      {isAuthenticated() && (
+        <MDBox p={2} mt="auto">
+          <MDButton
+            onClick={handleLogout}
+            variant="gradient"
+            color="error"
+            fullWidth
+            startIcon={<Icon>logout</Icon>}
+          >
+            Đăng xuất
+          </MDButton>
+        </MDBox>
+      )}
     </SidenavRoot>
   );
 }

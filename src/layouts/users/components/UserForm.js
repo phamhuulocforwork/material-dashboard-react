@@ -1,61 +1,37 @@
-import React from 'react';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
+import React from "react";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
 import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
 import MDButton from "components/MDButton";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useUsers } from 'contexts/UserContext';
+import { useUsers } from "contexts/UserContext";
 
 const UserValidationSchema = Yup.object().shape({
-  hoTen: Yup.string()
-    .min(3, 'Họ tên phải có ít nhất 3 ký tự')
-    .max(50, 'Họ tên không được quá 50 ký tự')
-    .required('Họ tên là bắt buộc'),
-  
-  email: Yup.string()
-    .email('Email không hợp lệ')
-    .required('Email là bắt buộc'),
-  
-  vaiTro: Yup.string()
-    .test('is-valid-role', 'Vai trò không hợp lệ', function(value) {
-      if (!value) return false;
-      return ['Admin', 'User'].includes(value);
-    })
-    .required('Vai trò là bắt buộc'),
-  
-  ngaySinh: Yup.date()
-    .required('Ngày sinh là bắt buộc')
-    .test('age', 'Tuổi phải từ 18 trở lên', function(value) {
-      if (!value) return false;
-      const today = new Date();
-      const birthDate = new Date(value);
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      
-      return age >= 18;
-    })
-    .max(new Date(), 'Ngày sinh không thể là ngày trong tương lai')
+  first_name: Yup.string()
+    .min(2, "First name phải có ít nhất 2 ký tự")
+    .max(50, "First name không được quá 50 ký tự")
+    .required("First name là bắt buộc"),
+
+  last_name: Yup.string()
+    .min(2, "Last name phải có ít nhất 2 ký tự")
+    .max(50, "Last name không được quá 50 ký tự")
+    .required("Last name là bắt buộc"),
+
+  email: Yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
+
+  job: Yup.string().max(100, "Job không được quá 100 ký tự"),
 });
 
 const UserForm = ({ onSuccess }) => {
   const { editingUser, handleAddUser, handleUpdateUser, closeModal } = useUsers();
 
   const initialValues = {
-    hoTen: editingUser?.hoTen || '',
-    email: editingUser?.email || '',
-    vaiTro: editingUser?.vaiTro || '',
-    ngaySinh: editingUser?.ngaySinh || ''
+    first_name: editingUser?.first_name || "",
+    last_name: editingUser?.last_name || "",
+    email: editingUser?.email || "",
+    job: editingUser?.job || "",
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -65,12 +41,12 @@ const UserForm = ({ onSuccess }) => {
       } else {
         await handleAddUser(values);
       }
-      
+
       if (onSuccess) {
         onSuccess();
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
     } finally {
       setSubmitting(false);
     }
@@ -86,17 +62,32 @@ const UserForm = ({ onSuccess }) => {
       {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
         <Form>
           <Grid container spacing={3}>
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                name="hoTen"
-                label="Họ Tên"
+                name="first_name"
+                label="First Name"
                 variant="outlined"
-                value={values.hoTen}
+                value={values.first_name}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={touched.hoTen && Boolean(errors.hoTen)}
-                helperText={touched.hoTen && errors.hoTen}
+                error={touched.first_name && Boolean(errors.first_name)}
+                helperText={touched.first_name && errors.first_name}
+                disabled={isSubmitting}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                name="last_name"
+                label="Last Name"
+                variant="outlined"
+                value={values.last_name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.last_name && Boolean(errors.last_name)}
+                helperText={touched.last_name && errors.last_name}
                 disabled={isSubmitting}
               />
             </Grid>
@@ -120,54 +111,23 @@ const UserForm = ({ onSuccess }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                select
-                name="vaiTro"
-                label="Vai Trò"
-                value={values.vaiTro}
+                name="job"
+                label="Job"
+                variant="outlined"
+                value={values.job}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={touched.vaiTro && Boolean(errors.vaiTro)}
-                helperText={touched.vaiTro && errors.vaiTro}
+                error={touched.job && Boolean(errors.job)}
+                helperText={touched.job && errors.job}
                 disabled={isSubmitting}
-                variant="outlined"
-                sx={{
-                  "& .MuiInputBase-root": {
-                    height: 42,
-                  },
-                }}
-              >
-                {['Admin', 'User'].map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                name="ngaySinh"
-                label="Ngày Sinh"
-                type="date"
-                variant="outlined"
-                value={values.ngaySinh}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={touched.ngaySinh && Boolean(errors.ngaySinh)}
-                helperText={touched.ngaySinh && errors.ngaySinh}
-                disabled={isSubmitting}
-                InputLabelProps={{
-                  shrink: true,
-                }}
               />
             </Grid>
           </Grid>
 
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'flex-end',
+              display: "flex",
+              justifyContent: "flex-end",
               gap: 2,
               mt: 4,
             }}
@@ -194,11 +154,7 @@ const UserForm = ({ onSuccess }) => {
                 {editingUser ? "Đang cập nhật..." : "Đang thêm..."}
               </MDButton>
             ) : (
-              <MDButton
-                type="submit"
-                variant="gradient"
-                color="success"
-              >
+              <MDButton type="submit" variant="gradient" color="success">
                 {editingUser ? "CẬP NHẬT" : "THÊM"}
               </MDButton>
             )}
