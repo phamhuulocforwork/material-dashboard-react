@@ -1,0 +1,1 @@
+Material Dashboard 2 React is a React 18 + MUI 5 admin dashboard template customized under `src/layouts`, `components`, and `contexts`. It provides reusable layout containers (DashboardLayout, DashboardNavbar), MD-branded UI wrappers (MDBox, MDButton, etc.), and data visualization. The app is bootstrapped with Create React App (`react-scripts`).

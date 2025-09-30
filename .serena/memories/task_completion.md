@@ -1,0 +1,1 @@
+After coding, run `npm test` if logic changed, or at minimum `npm start` manually check UI. For significant UI/UX changes consider smoke testing via browser. No formal lint/format commands; rely on Prettier/ESLint defaults. Prepare git commit aligned with existing history if requested.

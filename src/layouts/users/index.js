@@ -1,6 +1,8 @@
 import React from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -13,7 +15,7 @@ import UserModal from "./components/UserModal";
 import MDButton from "components/MDButton";
 
 const UsersContent = () => {
-  const { modalOpen, modalTitle, openCreateModal, closeModal } = useUsers();
+  const { modalOpen, modalTitle, openCreateModal, closeModal, snackbar, closeSnackbar } = useUsers();
 
   return (
     <>
@@ -60,6 +62,21 @@ const UsersContent = () => {
         onClose={closeModal}
         title={modalTitle}
       />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={closeSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={closeSnackbar}
+          severity={snackbar.severity}
+          variant="standard"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

@@ -1,0 +1,1 @@
+Frontend: React 18, MUI 5 (Material UI), Create React App tooling, Chart.js, React Router v6, React Table. Styling leverages MUI `sx` props and custom MD components wrapping MUI primitives. State currently handled via React Context/hooks. Form validation uses Yup; Formik planned for more complex forms.

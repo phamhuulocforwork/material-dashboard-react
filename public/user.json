@@ -3,90 +3,105 @@
     "id": 1,
     "hoTen": "Nguyễn Văn An",
     "email": "nguyenvana@example.com",
-    "vaiTro": "Admin"
+    "vaiTro": "Admin",
+    "ngaySinh": "1985-03-15"
   },
   {
     "id": 2,
     "hoTen": "Trần Thị Bình",
     "email": "tranthib@example.com",
-    "vaiTro": "User"
+    "vaiTro": "User",
+    "ngaySinh": "1990-07-22"
   },
   {
     "id": 3,
     "hoTen": "Lê Văn Cường",
     "email": "levanc@example.com",
-    "vaiTro": "Moderator"
+    "vaiTro": "User",
+    "ngaySinh": "1988-11-08"
   },
   {
     "id": 4,
     "hoTen": "Phạm Thị Dung",
     "email": "phamthid@example.com",
-    "vaiTro": "User"
+    "vaiTro": "User",
+    "ngaySinh": "1992-05-30"
   },
   {
     "id": 5,
     "hoTen": "Hoàng Văn Em",
     "email": "hoangvane@example.com",
-    "vaiTro": "Admin"
+    "vaiTro": "Admin",
+    "ngaySinh": "1983-12-18"
   },
   {
     "id": 6,
     "hoTen": "Đỗ Thị Lan",
     "email": "dothil@example.com",
-    "vaiTro": "User"
+    "vaiTro": "Guest",
+    "ngaySinh": "1995-09-14"
   },
   {
     "id": 7,
     "hoTen": "Vũ Văn Minh",
     "email": "vuvanm@example.com",
-    "vaiTro": "Moderator"
+    "vaiTro": "User",
+    "ngaySinh": "1987-04-25"
   },
   {
     "id": 8,
     "hoTen": "Bùi Thị Hoa",
     "email": "buithih@example.com",
-    "vaiTro": "User"
+    "vaiTro": "User",
+    "ngaySinh": "1991-08-06"
   },
   {
     "id": 9,
     "hoTen": "Ngô Văn Hùng",
     "email": "ngovanh@example.com",
-    "vaiTro": "Admin"
+    "vaiTro": "Admin",
+    "ngaySinh": "1984-02-11"
   },
   {
     "id": 10,
     "hoTen": "Đinh Thị Kim",
     "email": "dinthik@example.com",
-    "vaiTro": "User"
+    "vaiTro": "User",
+    "ngaySinh": "1993-10-28"
   },
   {
     "id": 11,
     "hoTen": "Lý Văn Nam",
     "email": "lyvann@example.com",
-    "vaiTro": "Moderator"
+    "vaiTro": "Guest",
+    "ngaySinh": "1989-06-17"
   },
   {
     "id": 12,
     "hoTen": "Mai Thị Oanh",
     "email": "maithio@example.com",
-    "vaiTro": "User"
+    "vaiTro": "User",
+    "ngaySinh": "1994-01-03"
   },
   {
     "id": 13,
     "hoTen": "Trịnh Văn Phong",
     "email": "trinhvanp@example.com",
-    "vaiTro": "Admin"
+    "vaiTro": "Admin",
+    "ngaySinh": "1986-07-09"
   },
   {
     "id": 14,
     "hoTen": "Đào Thị Quỳnh",
     "email": "daothiq@example.com",
-    "vaiTro": "User"
+    "vaiTro": "User",
+    "ngaySinh": "1996-03-21"
   },
   {
     "id": 15,
     "hoTen": "Vương Văn Sơn",
     "email": "vuongvans@example.com",
-    "vaiTro": "Moderator"
+    "vaiTro": "Guest",
+    "ngaySinh": "1990-11-12"
   }
 ]

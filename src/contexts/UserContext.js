@@ -1,6 +1,123 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 
 const UserContext = createContext();
+
+const ACTIONS = {
+  SET_USERS: 'SET_USERS',
+  ADD_USER: 'ADD_USER',
+  UPDATE_USER: 'UPDATE_USER',
+  DELETE_USER: 'DELETE_USER',
+  SET_LOADING: 'SET_LOADING',
+  SET_SEARCH_TERM: 'SET_SEARCH_TERM',
+  SET_MODAL_OPEN: 'SET_MODAL_OPEN',
+  SET_MODAL_CLOSED: 'SET_MODAL_CLOSED',
+  SET_EDITING_USER: 'SET_EDITING_USER',
+  SET_SORT: 'SET_SORT',
+  SET_PAGE: 'SET_PAGE',
+  SET_ROWS_PER_PAGE: 'SET_ROWS_PER_PAGE',
+  SET_SNACKBAR: 'SET_SNACKBAR',
+  CLOSE_SNACKBAR: 'CLOSE_SNACKBAR'
+};
+
+const initialState = {
+  users: [],
+  loading: true,
+  searchTerm: '',
+  modalOpen: false,
+  modalMode: 'create',
+  modalTitle: '',
+  editingUser: null,
+  page: 0,
+  rowsPerPage: 5,
+  sortBy: '',
+  sortOrder: 'asc',
+  snackbar: {
+    open: false,
+    message: '',
+    severity: 'success'
+  }
+};
+
+function userReducer(state, action) {
+  switch (action.type) {
+    case ACTIONS.SET_USERS:
+      return { ...state, users: action.payload };
+    
+    case ACTIONS.ADD_USER:
+      return { ...state, users: [...state.users, action.payload] };
+    
+    case ACTIONS.UPDATE_USER:
+      return {
+        ...state,
+        users: state.users.map(user =>
+          user.id === action.payload.id ? { ...user, ...action.payload.data } : user
+        )
+      };
+    
+    case ACTIONS.DELETE_USER:
+      return {
+        ...state,
+        users: state.users.filter(user => user.id !== action.payload)
+      };
+    
+    case ACTIONS.SET_LOADING:
+      return { ...state, loading: action.payload };
+    
+    case ACTIONS.SET_SEARCH_TERM:
+      return { ...state, searchTerm: action.payload, page: 0 };
+    
+    case ACTIONS.SET_MODAL_OPEN:
+      return {
+        ...state,
+        modalOpen: true,
+        modalMode: action.payload.mode,
+        modalTitle: action.payload.title,
+        editingUser: action.payload.user || null
+      };
+    
+    case ACTIONS.SET_MODAL_CLOSED:
+      return {
+        ...state,
+        modalOpen: false,
+        editingUser: null
+      };
+    
+    case ACTIONS.SET_EDITING_USER:
+      return { ...state, editingUser: action.payload };
+    
+    case ACTIONS.SET_SORT:
+      return {
+        ...state,
+        sortBy: action.payload.sortBy,
+        sortOrder: action.payload.sortOrder
+      };
+    
+    case ACTIONS.SET_PAGE:
+      return { ...state, page: action.payload };
+    
+    case ACTIONS.SET_ROWS_PER_PAGE:
+      return { ...state, rowsPerPage: action.payload, page: 0 };
+    
+    case ACTIONS.SET_SNACKBAR:
+      return {
+        ...state,
+        snackbar: {
+          open: true,
+          message: action.payload.message,
+          severity: action.payload.severity
+        }
+      };
+    
+    case ACTIONS.CLOSE_SNACKBAR:
+      return {
+        ...state,
+        snackbar: { ...state.snackbar, open: false }
+      };
+    
+    default:
+      return state;
+  }
+}
 
 export const useUsers = () => {
   const context = useContext(UserContext);
@@ -11,185 +128,179 @@ export const useUsers = () => {
 };
 
 export const UserProvider = ({ children }) => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showLoading, setShowLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    hoTen: "",
-    email: "",
-    vaiTro: ""
-  });
-
-  const [editingUser, setEditingUser] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('create');
-  const [modalTitle, setModalTitle] = useState('');
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const [sortBy, setSortBy] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [state, dispatch] = useReducer(userReducer, initialState);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        setLoading(true);
+        dispatch({ type: ACTIONS.SET_LOADING, payload: true });
         const response = await fetch('/user.json');
         let data = await response.json();
-
-        setUsers(data);
+        dispatch({ type: ACTIONS.SET_USERS, payload: data });
       } catch (error) {
         console.error('Error fetching users:', error);
+        showSnackbar('Lỗi khi tải danh sách người dùng!', 'error');
       } finally {
-        setLoading(false);
-        setShowLoading(false);
+        dispatch({ type: ACTIONS.SET_LOADING, payload: false });
       }
     };
 
     fetchUsers();
   }, []);
 
-  const filteredAndSortedUsers = users
-    .filter(user =>
-      user.hoTen.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.vaiTro.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      // Only sort if sortBy is not empty
-      if (!sortBy) {
-        return 0; // No sorting
-      }
+  const filteredAndSortedUsers = useMemo(() => {
+    return state.users
+      .filter(user =>
+        user.hoTen.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
+        user.vaiTro.toLowerCase().includes(state.searchTerm.toLowerCase())
+      )
+      .sort((a, b) => {
+        if (!state.sortBy) return 0;
 
-      const aValue = a[sortBy].toLowerCase();
-      const bValue = b[sortBy].toLowerCase();
+        const aValue = a[state.sortBy].toLowerCase();
+        const bValue = b[state.sortBy].toLowerCase();
 
-      if (sortOrder === 'asc') {
-        return aValue.localeCompare(bValue, 'vi');
-      } else {
-        return bValue.localeCompare(aValue, 'vi');
-      }
+        if (state.sortOrder === 'asc') {
+          return aValue.localeCompare(bValue, 'vi');
+        } else {
+          return bValue.localeCompare(aValue, 'vi');
+        }
+      });
+  }, [state.users, state.searchTerm, state.sortBy, state.sortOrder]);
+
+  const paginatedUsers = useMemo(() => {
+    return filteredAndSortedUsers.slice(
+      state.page * state.rowsPerPage,
+      state.page * state.rowsPerPage + state.rowsPerPage
+    );
+  }, [filteredAndSortedUsers, state.page, state.rowsPerPage]);
+
+  const showSnackbar = (message, severity = 'success') => {
+    dispatch({
+      type: ACTIONS.SET_SNACKBAR,
+      payload: { message, severity }
     });
-
-  const paginatedUsers = filteredAndSortedUsers.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
   };
 
-  const handleSort = (column) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(column);
-      setSortOrder('asc');
+  const closeSnackbar = () => {
+    dispatch({ type: ACTIONS.CLOSE_SNACKBAR });
+  };
+
+  const handleAddUser = (userData) => {
+    try {
+      const newUser = {
+        id: Math.max(0, ...state.users.map(user => user.id)) + 1,
+        ...userData
+      };
+      dispatch({ type: ACTIONS.ADD_USER, payload: newUser });
+      dispatch({ type: ACTIONS.SET_MODAL_CLOSED });
+      showSnackbar('Thêm người dùng thành công!', 'success');
+      return true;
+    } catch (error) {
+      showSnackbar('Lỗi khi thêm người dùng!', 'error');
+      return false;
     }
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const openCreateModal = () => {
-    setModalMode('create');
-    setModalTitle('Thêm người dùng mới');
-    setFormData({ hoTen: "", email: "", vaiTro: "" });
-    setEditingUser(null);
-    setModalOpen(true);
-  };
-
-  const openEditModal = (user) => {
-    setModalMode('edit');
-    setModalTitle('Chỉnh sửa người dùng');
-    setEditingUser(user);
-    setFormData({
-      hoTen: user.hoTen,
-      email: user.email,
-      vaiTro: user.vaiTro
-    });
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setEditingUser(null);
-    setFormData({ hoTen: "", email: "", vaiTro: "" });
-  };
-
-  const handleAddUser = () => {
-    const newUser = {
-      id: Math.max(0, ...users.map(user => user.id)) + 1,
-      ...formData
-    };
-    setUsers(prev => [...prev, newUser]);
+  const handleUpdateUser = (id, userData) => {
+    try {
+      dispatch({
+        type: ACTIONS.UPDATE_USER,
+        payload: { id, data: userData }
+      });
+      dispatch({ type: ACTIONS.SET_MODAL_CLOSED });
+      showSnackbar('Cập nhật người dùng thành công!', 'success');
+      return true;
+    } catch (error) {
+      showSnackbar('Lỗi khi cập nhật người dùng!', 'error');
+      return false;
+    }
   };
 
   const handleDeleteUser = (id) => {
-    setUsers(prev => prev.filter(user => user.id !== id));
+    try {
+      dispatch({ type: ACTIONS.DELETE_USER, payload: id });
+      showSnackbar('Xóa người dùng thành công!', 'success');
+    } catch (error) {
+      showSnackbar('Lỗi khi xóa người dùng!', 'error');
+    }
   };
 
-  const handleEditUser = (user) => {
-    openEditModal(user);
+  const openCreateModal = () => {
+    dispatch({
+      type: ACTIONS.SET_MODAL_OPEN,
+      payload: {
+        mode: 'create',
+        title: 'Thêm người dùng mới',
+        user: null
+      }
+    });
   };
 
-  const handleSaveEdit = () => {
-    setUsers(prev => prev.map(user =>
-      user.id === editingUser.id
-        ? { ...user, ...formData }
-        : user
-    ));
+  const openEditModal = (user) => {
+    dispatch({
+      type: ACTIONS.SET_MODAL_OPEN,
+      payload: {
+        mode: 'edit',
+        title: 'Chỉnh sửa người dùng',
+        user: user
+      }
+    });
   };
 
-  const handleCancelEdit = () => {
-    closeModal();
+  const closeModal = () => {
+    dispatch({ type: ACTIONS.SET_MODAL_CLOSED });
+  };
+
+  const handleSort = (column) => {
+    const newSortOrder = state.sortBy === column && state.sortOrder === 'asc' ? 'desc' : 'asc';
+    dispatch({
+      type: ACTIONS.SET_SORT,
+      payload: { sortBy: column, sortOrder: newSortOrder }
+    });
+  };
+
+  const handleChangePage = (event, newPage) => {
+    dispatch({ type: ACTIONS.SET_PAGE, payload: newPage });
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    dispatch({ type: ACTIONS.SET_ROWS_PER_PAGE, payload: parseInt(event.target.value, 10) });
+  };
+
+  const setSearchTerm = (term) => {
+    dispatch({ type: ACTIONS.SET_SEARCH_TERM, payload: term });
   };
 
   const value = {
-    users,
-    setUsers,
-    loading,
-    showLoading,
-    formData,
-    setFormData,
-    editingUser,
-    setEditingUser,
-    searchTerm,
-    setSearchTerm,
+    users: state.users,
+    loading: state.loading,
+    searchTerm: state.searchTerm,
+    modalOpen: state.modalOpen,
+    modalMode: state.modalMode,
+    modalTitle: state.modalTitle,
+    editingUser: state.editingUser,
+    page: state.page,
+    rowsPerPage: state.rowsPerPage,
+    sortBy: state.sortBy,
+    sortOrder: state.sortOrder,
+    snackbar: state.snackbar,
     filteredAndSortedUsers,
     paginatedUsers,
-    page,
-    rowsPerPage,
-    sortBy,
-    sortOrder,
-    modalOpen,
-    modalMode,
-    modalTitle,
-    handleInputChange,
+    
     handleAddUser,
+    handleUpdateUser,
     handleDeleteUser,
-    handleEditUser,
-    handleSaveEdit,
-    handleCancelEdit,
+    openCreateModal,
+    openEditModal,
+    closeModal,
     handleSort,
     handleChangePage,
     handleChangeRowsPerPage,
-    openCreateModal,
-    openEditModal,
-    closeModal
+    setSearchTerm,
+    showSnackbar,
+    closeSnackbar
   };
 
   return (
