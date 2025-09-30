@@ -26,7 +26,7 @@ const UserValidationSchema = Yup.object().shape({
   vaiTro: Yup.string()
     .test('is-valid-role', 'Vai trò không hợp lệ', function(value) {
       if (!value) return false;
-      return ['Admin', 'User', 'Guest'].includes(value);
+      return ['Admin', 'User'].includes(value);
     })
     .required('Vai trò là bắt buộc'),
   
@@ -136,7 +136,7 @@ const UserForm = ({ onSuccess }) => {
                   },
                 }}
               >
-                {['Admin', 'User', 'Guest'].map((option) => (
+                {['Admin', 'User'].map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>

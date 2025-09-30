@@ -20,7 +20,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
-import Tooltip from "@mui/material/Tooltip";
 import { useUsers } from 'contexts/UserContext';
 
 const InlineEditSchema = Yup.object().shape({
@@ -34,7 +33,7 @@ const InlineEditSchema = Yup.object().shape({
   vaiTro: Yup.string()
     .test('is-valid-role', 'Không hợp lệ', function(value) {
       if (!value) return false;
-      return ['Admin', 'User', 'Guest'].includes(value);
+      return ['Admin', 'User'].includes(value);
     })
     .required('Bắt buộc'),
   ngaySinh: Yup.date()
@@ -103,7 +102,7 @@ const UserTable = () => {
       sortable: false,
       editable: true,
       type: "select",
-      options: ['Admin', 'User', 'Guest']
+      options: ['Admin', 'User']
     },
     {
       Header: "Ngày Sinh",
@@ -209,9 +208,10 @@ const UserTable = () => {
                       setSubmitting(false);
                     }}
                   >
-                    {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+                    {({ values, errors, touched, handleChange, handleBlur, isSubmitting, handleSubmit }) => (
                       <TableRow
-                        component={Form}
+                        key={`edit-${row.id}`}
+                        component="tr"
                         sx={{
                           backgroundColor: "#fffef0",
                           "&:hover": {
@@ -226,36 +226,34 @@ const UserTable = () => {
                             sx={{
                               borderBottom: "1px solid #e0e0e0",
                               padding: "8px",
+                              verticalAlign: "top",
                             }}
                           >
                             {column.accessor === "id" ? (
                               <Typography variant="body2">{row.id}</Typography>
                             ) : column.accessor === "actions" ? (
                               <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                                <Tooltip title="Lưu thay đổi" arrow>
-                                  <span>
-                                    <IconButton
-                                      color="success"
-                                      type="submit"
-                                      size="small"
-                                      disabled={isSubmitting}
-                                    >
-                                      <SaveIcon fontSize="small" />
-                                    </IconButton>
-                                  </span>
-                                </Tooltip>
-                                <Tooltip title="Hủy bỏ" arrow>
-                                  <span>
-                                    <IconButton
-                                      color="error"
-                                      onClick={handleCancelEdit}
-                                      size="small"
-                                      disabled={isSubmitting}
-                                    >
-                                      <CancelIcon fontSize="small" />
-                                    </IconButton>
-                                  </span>
-                                </Tooltip>
+                                <IconButton
+                                  color="success"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleSubmit();
+                                  }}
+                                  size="small"
+                                  disabled={isSubmitting}
+                                  title="Lưu thay đổi"
+                                >
+                                  <SaveIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton
+                                  color="error"
+                                  onClick={handleCancelEdit}
+                                  size="small"
+                                  disabled={isSubmitting}
+                                  title="Hủy bỏ"
+                                >
+                                  <CancelIcon fontSize="small" />
+                                </IconButton>
                               </Box>
                             ) : column.editable ? (
                               column.type === "select" ? (
@@ -270,7 +268,12 @@ const UserTable = () => {
                                   error={touched[column.accessor] && Boolean(errors[column.accessor])}
                                   helperText={touched[column.accessor] && errors[column.accessor]}
                                   disabled={isSubmitting}
-                                  sx={{ minWidth: '120px' }}
+                                  sx={{
+                                    minWidth: '120px',
+                                    "& .MuiInputBase-root": {
+                                      height: 40,
+                                    },
+                                  }}
                                 >
                                   {column.options.map((option) => (
                                     <MenuItem key={option} value={option}>
@@ -318,70 +321,62 @@ const UserTable = () => {
               }
 
               return (
-                <Tooltip 
-                  key={row.id}
-                  title="Double-click để chỉnh sửa nhanh" 
-                  placement="left"
-                  arrow
-                  enterDelay={1000}
-                >
-                  <TableRow
-                    onDoubleClick={() => handleStartEdit(row.id)}
+              <TableRow
+                  key={`view-${row.id}`}
+                  onDoubleClick={() => handleStartEdit(row.id)}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5",
+                      cursor: "pointer"
+                  },
+                  "&:last-child td": {
+                    borderBottom: "none",
+                  },
+                }}
+                  title="Double-click để chỉnh sửa nhanh"
+              >
+                  {columns.map((column) => (
+                  <TableCell
+                      key={column.accessor}
+                    align={column.align}
                     sx={{
-                      "&:hover": {
-                        backgroundColor: "#f5f5f5",
-                        cursor: "pointer"
-                      },
-                      "&:last-child td": {
-                        borderBottom: "none",
-                      },
+                      borderBottom: "1px solid #e0e0e0",
+                      padding: "16px",
+                      fontSize: "0.875rem",
+                      color: "#333333",
                     }}
                   >
-                  {columns.map((column) => (
-                    <TableCell
-                      key={column.accessor}
-                      align={column.align}
-                      sx={{
-                        borderBottom: "1px solid #e0e0e0",
-                        padding: "16px",
-                        fontSize: "0.875rem",
-                        color: "#333333",
-                      }}
-                    >
-                      {column.accessor === "actions" ? (
-                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                          <Tooltip title="Chỉnh sửa (mở modal)" arrow>
-                            <IconButton
-                              color="primary"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openEditModal(row);
-                              }}
-                              size="small"
-                            >
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Xóa người dùng" arrow>
-                            <IconButton
-                              color="error"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteUser(row.id);
-                              }}
-                              size="small"
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </Tooltip>
-                        </Box>
-                      ) : (
-                        row[column.accessor]
-                      )}
-                    </TableCell>
-                  ))}
-                  </TableRow>
-                </Tooltip>
+                    {column.accessor === "actions" ? (
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                        <IconButton
+                          color="primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEditModal(row);
+                            }}
+                          size="small"
+                            title="Chỉnh sửa (mở modal)"
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteUser(row.id);
+                            }}
+                          size="small"
+                            title="Xóa người dùng"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    ) : (
+                      row[column.accessor]
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
               );
             })}
           </TableBody>
