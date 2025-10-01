@@ -1,87 +1,106 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Render } from "@measured/puck";
 
-import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
+import Container from "@mui/material/Container";
+import Divider from "@mui/material/Divider";
 
-import MDBox from "components/MDBox";
+import MDButton from "components/MDButton";
 
 function FormRenderer({ config, data, onFormSubmit }) {
   const [formData, setFormData] = useState({});
+  const enhancedConfig = useMemo(
+    () => ({
+      ...config,
+      components: Object.entries(config.components).reduce((acc, [key, component]) => {
+        acc[key] = {
+          ...component,
+          render: (props) => {
+            const originalComponent = component.render(props);
 
-  const enhancedConfig = {
-    ...config,
-    components: Object.entries(config.components).reduce((acc, [key, component]) => {
-      acc[key] = {
-        ...component,
-        render: (props) => {
-          const originalComponent = component.render(props);
+            const componentIndex = data.content
+              ? data.content.findIndex(
+                  (item) =>
+                    item.type === key && JSON.stringify(item.props) === JSON.stringify(props)
+                )
+              : 0;
 
-          // Clone the component with additional props for form handling
-          return React.cloneElement(originalComponent, {
-            ...originalComponent.props,
-            isPreview: true,
-            onValueChange: (fieldName, value) => {
-              const fieldKey = fieldName.toLowerCase().replace(/\s+/g, "_");
-              setFormData((prev) => ({
-                ...prev,
-                [fieldKey]: value,
-              }));
-            },
-          });
+            const questionNumber = componentIndex + 1;
+
+            return React.cloneElement(originalComponent, {
+              ...originalComponent.props,
+              isPreview: true,
+              questionNumber: questionNumber > 0 ? questionNumber : 1,
+              onValueChange: (fieldName, value) => {
+                const fieldKey = `question_${questionNumber > 0 ? questionNumber : 1}_${fieldName
+                  .toLowerCase()
+                  .replace(/\s+/g, "_")}`;
+                setFormData((prev) => ({
+                  ...prev,
+                  [fieldKey]: value,
+                }));
+              },
+            });
+          },
+        };
+        return acc;
+      }, {}),
+      root: {
+        ...config.root,
+        render: ({ children }) => {
+          return (
+            <Container maxWidth="md">
+              <Paper elevation={1} sx={{ p: 3, mt: 2 }}>
+                <Typography
+                  variant="h5"
+                  component="h1"
+                  gutterBottom
+                  sx={{ mb: 3, fontWeight: 600 }}
+                >
+                  Preview
+                </Typography>
+                <Divider sx={{ mb: 3 }} />
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    console.log("Form submitted with data:", formData);
+                    if (onFormSubmit) {
+                      onFormSubmit(formData);
+                    }
+                  }}
+                >
+                  <Box sx={{ mb: 4 }}>{children}</Box>
+
+                  <Divider sx={{ my: 3 }} />
+
+                  <Box display="flex" justifyContent="center">
+                    <MDButton
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      size="large"
+                      fullWidth
+                    >
+                      Submit
+                    </MDButton>
+                  </Box>
+                </form>
+              </Paper>
+            </Container>
+          );
         },
-      };
-      return acc;
-    }, {}),
-    root: {
-      ...config.root,
-      render: ({ children }) => {
-        const originalRoot = config.root.render({ children });
-
-        return (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              onFormSubmit(formData);
-            }}
-          >
-            {originalRoot}
-            <MDBox mt={3}>
-              <Button type="submit" variant="contained" color="primary" size="large" fullWidth>
-                Submit Form
-              </Button>
-            </MDBox>
-          </form>
-        );
       },
-    },
-  };
+    }),
+    [config, data, formData]
+  );
 
   return (
     <Box>
       <Render config={enhancedConfig} data={data} />
-
-      {Object.keys(formData).length > 0 && (
-        <Paper elevation={2} sx={{ mt: 2, p: 2, bgcolor: "grey.50" }}>
-          <Typography variant="h6" gutterBottom>
-            Current Form Values:
-          </Typography>
-          <Box
-            component="pre"
-            sx={{
-              fontSize: "0.875rem",
-              fontFamily: "monospace",
-              overflow: "auto",
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {JSON.stringify(formData, null, 2)}
-          </Box>
-        </Paper>
-      )}
     </Box>
   );
 }
@@ -89,7 +108,7 @@ function FormRenderer({ config, data, onFormSubmit }) {
 FormRenderer.propTypes = {
   config: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
-  onFormSubmit: PropTypes.func.isRequired,
+  onFormSubmit: PropTypes.func,
 };
 
 export default FormRenderer;

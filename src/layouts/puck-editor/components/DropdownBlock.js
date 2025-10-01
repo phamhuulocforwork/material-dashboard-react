@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
+import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
 
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
 function DropdownBlock({
-  label = "Dropdown Field",
+  label = "Dropdown",
+  questionDescription = "Question Description",
   options = [],
   defaultValue = "",
   isPreview = false,
+  questionNumber = 1,
   onValueChange,
 }) {
   const [selectedValue, setSelectedValue] = useState(defaultValue);
@@ -37,56 +39,84 @@ function DropdownBlock({
   return (
     <MDBox mb={2}>
       {isPreview ? (
-        <FormControl fullWidth variant="outlined" size="small">
-          <InputLabel id={`dropdown-label-${fieldName}`}>{label}</InputLabel>
-          <Select
-            labelId={`dropdown-label-${fieldName}`}
-            id={`dropdown-select-${fieldName}`}
-            value={selectedValue}
-            label={label}
-            onChange={handleChange}
-            name={fieldName}
-          >
-            {options.length > 0 ? (
-              options.map((option, index) => (
-                <MenuItem key={index} value={option.value || option}>
-                  {option.value || option}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem value="" disabled>
-                No options available
-              </MenuItem>
-            )}
-          </Select>
-        </FormControl>
+        <Paper elevation={1} sx={{ p: 2, mb: 2, border: "1px solid #e0e0e0" }}>
+          {/* Question Header */}
+          <Box display="flex" alignItems="flex-start" mb={1}>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ color: "#1976d2", fontSize: "14px", fontWeight: 500 }}
+            >
+              {questionNumber}
+            </Typography>
+            <Box ml={2} flex={1}>
+              <Typography variant="h6" component="div" sx={{ fontWeight: 500, mb: 0.5 }}>
+                {label}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {questionDescription}
+              </Typography>
+
+              <TextField
+                fullWidth
+                select
+                variant="outlined"
+                value={selectedValue}
+                onChange={handleChange}
+                label={selectedValue ? "" : "Choose"}
+                name={fieldName}
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: 40,
+                  },
+                  "& .MuiSelect-icon": {
+                    fontSize: "1.25rem",
+                    right: "8px",
+                  },
+                }}
+              >
+                {options.length > 0 ? (
+                  options.map((option, index) => (
+                    <MenuItem key={index} value={option.value || option}>
+                      {option.value || option}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem value="" disabled>
+                    No options available
+                  </MenuItem>
+                )}
+              </TextField>
+            </Box>
+          </Box>
+        </Paper>
       ) : (
-        <Box
-          sx={{
-            border: "2px dashed #e0e0e0",
-            borderRadius: 1,
-            p: 2,
-            backgroundColor: "#f9f9f9",
-            minHeight: 60,
-            display: "flex",
-            alignItems: "center",
-          }}
+        <Paper
+          elevation={2}
+          sx={{ p: 2, backgroundColor: "#f8f9fa", border: "2px dashed #dee2e6" }}
         >
-          <MDTypography variant="body2" color="text.secondary">
-            <strong>Dropdown:</strong> {label}
-            <br />
-            <small>
-              Options:{" "}
-              {options.length > 0 ? options.map((opt) => opt.value || opt).join(", ") : "None"}
-            </small>
-            {defaultValue && (
-              <>
-                <br />
-                <small>Default: {defaultValue}</small>
-              </>
-            )}
-          </MDTypography>
-        </Box>
+          <Typography
+            variant="h6"
+            sx={{ color: "#1976d2", fontSize: "14px", fontWeight: 500, mb: 1 }}
+          >
+            {questionNumber} Dropdown
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            Question: {label}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: "12px" }}>
+            Description: {questionDescription}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
+            Options:{" "}
+            {options.length > 0 ? options.map((opt) => opt.value || opt).join(", ") : "None"}
+          </Typography>
+          {defaultValue && (
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
+              Default: {defaultValue}
+            </Typography>
+          )}
+        </Paper>
       )}
     </MDBox>
   );
@@ -94,6 +124,7 @@ function DropdownBlock({
 
 DropdownBlock.propTypes = {
   label: PropTypes.string,
+  questionDescription: PropTypes.string,
   options: PropTypes.arrayOf(
     PropTypes.oneOfType([
       PropTypes.string,
@@ -104,6 +135,7 @@ DropdownBlock.propTypes = {
   ),
   defaultValue: PropTypes.string,
   isPreview: PropTypes.bool,
+  questionNumber: PropTypes.number,
   onValueChange: PropTypes.func,
 };
 

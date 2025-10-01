@@ -27,13 +27,17 @@ const config = {
         label: {
           type: "text",
         },
+        questionDescription: {
+          type: "textarea",
+          placeholder: "Enter question description...",
+        },
         options: {
           type: "array",
           arrayFields: {
             value: { type: "text" },
           },
           defaultItemProps: {
-            value: "Option",
+            value: "New option",
           },
           getItemSummary: (item) => item.value || "Option",
         },
@@ -42,14 +46,16 @@ const config = {
         },
       },
       defaultProps: {
-        label: "Dropdown Field",
-        options: [{ value: "Option 1" }, { value: "Option 2" }, { value: "Option 3" }],
+        label: "Dropdown",
+        questionDescription: "Question Description",
+        options: [{ value: "New option 1" }, { value: "New option 2" }],
         defaultValue: "",
       },
-      render: ({ label, options, defaultValue, puck }) => {
+      render: ({ label, questionDescription, options, defaultValue, puck }) => {
         return (
           <DropdownBlock
             label={label}
+            questionDescription={questionDescription}
             options={options}
             defaultValue={defaultValue}
             isPreview={puck?.isEditing === false}
@@ -62,13 +68,17 @@ const config = {
         label: {
           type: "text",
         },
+        questionDescription: {
+          type: "textarea",
+          placeholder: "Enter question description...",
+        },
         options: {
           type: "array",
           arrayFields: {
             value: { type: "text" },
           },
           defaultItemProps: {
-            value: "Option",
+            value: "New option",
           },
           getItemSummary: (item) => item.value || "Option",
         },
@@ -77,14 +87,16 @@ const config = {
         },
       },
       defaultProps: {
-        label: "Radio Field",
-        options: [{ value: "Option 1" }, { value: "Option 2" }, { value: "Option 3" }],
+        label: "Multiple choice",
+        questionDescription: "Question Description",
+        options: [{ value: "New option 1" }, { value: "New option 2" }, { value: "New option 3" }],
         defaultValue: "",
       },
-      render: ({ label, options, defaultValue, puck }) => {
+      render: ({ label, questionDescription, options, defaultValue, puck }) => {
         return (
           <RadioBlock
             label={label}
+            questionDescription={questionDescription}
             options={options}
             defaultValue={defaultValue}
             isPreview={puck?.isEditing === false}
@@ -100,7 +112,6 @@ const config = {
   },
 };
 
-// Initial data
 const initialData = {
   content: [],
   root: {},
@@ -109,15 +120,15 @@ const initialData = {
 function PuckEditor() {
   const [data, setData] = useState(initialData);
   const [isPreview, setIsPreview] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [submitResult, setSubmitResult] = useState(null);
 
   const handleSave = (newData) => {
     setData(newData);
   };
 
-  const handleFormSubmit = (submittedData) => {
-    console.log("Form submitted with data:", submittedData);
-    setFormData(submittedData);
+  const handleFormSubmit = (formData) => {
+    console.log("Form submitted with data:", formData);
+    setSubmitResult(formData);
   };
 
   return (
@@ -129,7 +140,7 @@ function PuckEditor() {
             <Card>
               <CardContent>
                 <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                  <MDTypography variant="h4">Dynamic Form Builder with Puck Editor</MDTypography>
+                  <MDTypography variant="h4">Puck Editor</MDTypography>
                   <MDButton
                     variant="contained"
                     color={isPreview ? "secondary" : "primary"}
@@ -141,18 +152,12 @@ function PuckEditor() {
 
                 <Box sx={{ minHeight: "500px" }}>
                   {isPreview ? (
-                    <div>
-                      <Typography variant="h6" gutterBottom>
-                        Form Preview
-                      </Typography>
+                    <>
                       <FormRenderer config={config} data={data} onFormSubmit={handleFormSubmit} />
-                      {Object.keys(formData).length > 0 && (
-                        <Box mt={3} p={2} bgcolor="success.light" borderRadius={1}>
-                          <Typography variant="h6" gutterBottom color="success.dark">
-                            ✅ Form Submitted Successfully!
-                          </Typography>
-                          <Typography variant="body2" color="success.dark">
-                            <strong>Submitted Data:</strong>
+                      {submitResult && (
+                        <Box mt={3} p={2} borderRadius={1}>
+                          <Typography variant="body2">
+                            <strong>Data:</strong>
                           </Typography>
                           <Box
                             component="pre"
@@ -164,13 +169,14 @@ function PuckEditor() {
                               bgcolor: "white",
                               borderRadius: 1,
                               overflow: "auto",
+                              maxHeight: "300px",
                             }}
                           >
-                            {JSON.stringify(formData, null, 2)}
+                            {JSON.stringify(submitResult, null, 2)}
                           </Box>
                         </Box>
                       )}
-                    </div>
+                    </>
                   ) : (
                     <Puck config={config} data={data} onPublish={handleSave} />
                   )}
