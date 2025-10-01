@@ -46,11 +46,20 @@ import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import Todo from "layouts/todo";
 import Users from "layouts/users";
-``
+import DynamicForm from "layouts/dynamic-form";
+
 // @mui icons
 import Icon from "@mui/material/Icon";
 
 const routes = [
+  {
+    type: "collapse",
+    name: "Dynamic Form",
+    key: "dynamic-form",
+    icon: <Icon fontSize="small">dynamic_form</Icon>,
+    route: "/dynamic-form",
+    component: <DynamicForm />,
+  },
   {
     type: "collapse",
     name: "Todo List",
