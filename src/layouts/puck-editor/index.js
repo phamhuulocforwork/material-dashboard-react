@@ -1,45 +1,25 @@
-/*
-=========================================================
-* Material Dashboard 2 React - Dynamic Form with Puck Editor
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import React, { useState } from "react";
-import { Puck, Render } from "@measured/puck";
+import { Puck } from "@measured/puck";
 import "@measured/puck/puck.css";
 
-// @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import MDButton from "components/MDButton";
 
-// Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
-// Form block components
 import DropdownBlock from "./components/DropdownBlock";
 import RadioBlock from "./components/RadioBlock";
 import FormRenderer from "./components/FormRenderer";
 
-// Puck configuration
 const config = {
   components: {
     DropdownBlock: {
@@ -126,7 +106,7 @@ const initialData = {
   root: {},
 };
 
-function DynamicForm() {
+function PuckEditor() {
   const [data, setData] = useState(initialData);
   const [isPreview, setIsPreview] = useState(false);
   const [formData, setFormData] = useState({});
@@ -150,13 +130,13 @@ function DynamicForm() {
               <CardContent>
                 <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                   <MDTypography variant="h4">Dynamic Form Builder with Puck Editor</MDTypography>
-                  <Button
+                  <MDButton
                     variant="contained"
                     color={isPreview ? "secondary" : "primary"}
                     onClick={() => setIsPreview(!isPreview)}
                   >
                     {isPreview ? "Edit Mode" : "Preview Mode"}
-                  </Button>
+                  </MDButton>
                 </MDBox>
 
                 <Box sx={{ minHeight: "500px" }}>
@@ -205,4 +185,4 @@ function DynamicForm() {
   );
 }
 
-export default DynamicForm;
+export default PuckEditor;

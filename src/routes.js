@@ -46,7 +46,7 @@ import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import Todo from "layouts/todo";
 import Users from "layouts/users";
-import DynamicForm from "layouts/dynamic-form";
+import PuckEditor from "layouts/puck-editor";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -54,11 +54,11 @@ import Icon from "@mui/material/Icon";
 const routes = [
   {
     type: "collapse",
-    name: "Dynamic Form",
-    key: "dynamic-form",
+    name: "Puck Editor",
+    key: "puck-editor",
     icon: <Icon fontSize="small">dynamic_form</Icon>,
-    route: "/dynamic-form",
-    component: <DynamicForm />,
+    route: "/puck-editor",
+    component: <PuckEditor />,
   },
   {
     type: "collapse",

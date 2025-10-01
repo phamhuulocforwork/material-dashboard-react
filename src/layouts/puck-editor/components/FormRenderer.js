@@ -1,35 +1,17 @@
-/*
-=========================================================
-* Material Dashboard 2 React - FormRenderer Component  
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { Render } from "@measured/puck";
 
-// @mui material components
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 
 function FormRenderer({ config, data, onFormSubmit }) {
   const [formData, setFormData] = useState({});
 
-  // Create enhanced config with form handling
   const enhancedConfig = {
     ...config,
     components: Object.entries(config.components).reduce((acc, [key, component]) => {

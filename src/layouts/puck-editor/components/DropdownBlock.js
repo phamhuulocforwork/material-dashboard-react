@@ -1,35 +1,17 @@
-/*
-=========================================================
-* Material Dashboard 2 React - RadioBlock Component  
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-// @mui material components
 import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Radio from "@mui/material/Radio";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import Box from "@mui/material/Box";
 
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
-function RadioBlock({
-  label = "Radio Field",
+function DropdownBlock({
+  label = "Dropdown Field",
   options = [],
   defaultValue = "",
   isPreview = false,
@@ -50,45 +32,35 @@ function RadioBlock({
     }
   };
 
-  // Generate unique field name for form data
   const fieldName = label.toLowerCase().replace(/\s+/g, "_");
 
   return (
     <MDBox mb={2}>
       {isPreview ? (
-        <FormControl component="fieldset" variant="standard">
-          <FormLabel component="legend" sx={{ mb: 1 }}>
-            {label}
-          </FormLabel>
-          <RadioGroup
-            aria-labelledby={`radio-group-label-${fieldName}`}
-            name={fieldName}
+        <FormControl fullWidth variant="outlined" size="small">
+          <InputLabel id={`dropdown-label-${fieldName}`}>{label}</InputLabel>
+          <Select
+            labelId={`dropdown-label-${fieldName}`}
+            id={`dropdown-select-${fieldName}`}
             value={selectedValue}
+            label={label}
             onChange={handleChange}
+            name={fieldName}
           >
             {options.length > 0 ? (
               options.map((option, index) => (
-                <FormControlLabel
-                  key={index}
-                  value={option.value || option}
-                  control={<Radio size="small" />}
-                  label={option.value || option}
-                  sx={{
-                    "& .MuiFormControlLabel-label": {
-                      fontSize: "0.875rem",
-                    },
-                  }}
-                />
+                <MenuItem key={index} value={option.value || option}>
+                  {option.value || option}
+                </MenuItem>
               ))
             ) : (
-              <MDTypography variant="body2" color="text.secondary">
+              <MenuItem value="" disabled>
                 No options available
-              </MDTypography>
+              </MenuItem>
             )}
-          </RadioGroup>
+          </Select>
         </FormControl>
       ) : (
-        // Editor mode - static display
         <Box
           sx={{
             border: "2px dashed #e0e0e0",
@@ -101,7 +73,7 @@ function RadioBlock({
           }}
         >
           <MDTypography variant="body2" color="text.secondary">
-            <strong>Radio Group:</strong> {label}
+            <strong>Dropdown:</strong> {label}
             <br />
             <small>
               Options:{" "}
@@ -120,7 +92,7 @@ function RadioBlock({
   );
 }
 
-RadioBlock.propTypes = {
+DropdownBlock.propTypes = {
   label: PropTypes.string,
   options: PropTypes.arrayOf(
     PropTypes.oneOfType([
@@ -135,4 +107,4 @@ RadioBlock.propTypes = {
   onValueChange: PropTypes.func,
 };
 
-export default RadioBlock;
+export default DropdownBlock;
