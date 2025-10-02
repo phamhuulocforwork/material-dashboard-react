@@ -19,6 +19,7 @@ function RadioBlock({
   isPreview = false,
   questionNumber = 2,
   onValueChange,
+  puck,
 }) {
   const [selectedValue, setSelectedValue] = useState(defaultValue);
 
@@ -35,7 +36,7 @@ function RadioBlock({
     }
   };
 
-  const fieldName = label.toLowerCase().replace(/\s+/g, "_");
+  const fieldName = (label || "").toString().toLowerCase().replace(/\s+/g, "_");
 
   return (
     <MDBox mb={2}>
@@ -99,27 +100,44 @@ function RadioBlock({
           elevation={2}
           sx={{ p: 2, backgroundColor: "#f8f9fa", border: "2px dashed #dee2e6" }}
         >
-          <Typography
-            variant="h6"
-            sx={{ color: "#1976d2", fontSize: "14px", fontWeight: 500, mb: 1 }}
-          >
-            {questionNumber} Multiple choice
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            Question: {label}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: "12px" }}>
-            Description: {questionDescription}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
-            Options:{" "}
-            {options.length > 0 ? options.map((opt) => opt.value || opt).join(", ") : "None"}
-          </Typography>
-          {defaultValue && (
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
-              Default: {defaultValue}
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: "12px" }}>
+              🔘 Radio Question:
             </Typography>
-          )}
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ 
+                fontWeight: 500, 
+                mb: 1,
+                minHeight: '24px',
+                border: '1px dashed transparent',
+                '&:hover': { border: '1px dashed #ccc' }
+              }}
+            >
+              {label}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ 
+                mb: 2,
+                minHeight: '20px',
+                border: '1px dashed transparent',
+                '&:hover': { border: '1px dashed #ccc' }
+              }}
+            >
+              {questionDescription}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
+              Options: {options.length > 0 ? options.map((opt) => opt.value || opt).join(", ") : "None"}
+            </Typography>
+            {defaultValue && (
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
+                Default: {defaultValue}
+              </Typography>
+            )}
+          </Box>
         </Paper>
       )}
     </MDBox>
@@ -141,6 +159,7 @@ RadioBlock.propTypes = {
   isPreview: PropTypes.bool,
   questionNumber: PropTypes.number,
   onValueChange: PropTypes.func,
+  puck: PropTypes.object,
 };
 
 export default RadioBlock;

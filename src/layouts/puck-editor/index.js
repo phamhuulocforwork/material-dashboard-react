@@ -26,10 +26,12 @@ const config = {
       fields: {
         label: {
           type: "text",
+          contentEditable: true,
         },
         questionDescription: {
           type: "textarea",
           placeholder: "Enter question description...",
+          contentEditable: true,
         },
         options: {
           type: "array",
@@ -59,6 +61,7 @@ const config = {
             options={options}
             defaultValue={defaultValue}
             isPreview={puck?.isEditing === false}
+            puck={puck}
           />
         );
       },
@@ -67,10 +70,12 @@ const config = {
       fields: {
         label: {
           type: "text",
+          contentEditable: true,
         },
         questionDescription: {
           type: "textarea",
           placeholder: "Enter question description...",
+          contentEditable: true,
         },
         options: {
           type: "array",
@@ -100,6 +105,7 @@ const config = {
             options={options}
             defaultValue={defaultValue}
             isPreview={puck?.isEditing === false}
+            puck={puck}
           />
         );
       },
