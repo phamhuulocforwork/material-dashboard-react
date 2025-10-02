@@ -8,7 +8,6 @@ import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 
 import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
 
 function DropdownBlock({
   label = "Dropdown",
@@ -18,7 +17,6 @@ function DropdownBlock({
   isPreview = false,
   questionNumber = 1,
   onValueChange,
-  puck,
 }) {
   const [selectedValue, setSelectedValue] = useState(defaultValue);
 
@@ -41,7 +39,6 @@ function DropdownBlock({
     <MDBox mb={2}>
       {isPreview ? (
         <Paper elevation={1} sx={{ p: 2, mb: 2, border: "1px solid #e0e0e0" }}>
-          {/* Question Header */}
           <Box display="flex" alignItems="flex-start" mb={1}>
             <Typography
               variant="h6"
@@ -97,9 +94,6 @@ function DropdownBlock({
           sx={{ p: 2, backgroundColor: "#f8f9fa", border: "2px dashed #dee2e6" }}
         >
           <Box sx={{ mb: 2 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: "12px" }}>
-              🔽 Dropdown Question:
-            </Typography>
             <Typography
               variant="h6"
               component="div"
@@ -125,11 +119,40 @@ function DropdownBlock({
             >
               {questionDescription}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
-              Options: {options.length > 0 ? options.map((opt) => opt.value || opt).join(", ") : "None"}
-            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px", mb: 1 }}>
+                Options:
+              </Typography>
+              {options.map((option, index) => (
+                <Box 
+                  key={index} 
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    mb: 1,
+                    p: 1,
+                    border: '1px solid #e0e0e0',
+                    borderRadius: 1,
+                    backgroundColor: '#fff'
+                  }}
+                >
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      flex: 1,
+                      fontSize: "14px",
+                      minHeight: '20px',
+                      border: '1px dashed transparent',
+                      '&:hover': { border: '1px dashed #ccc' }
+                    }}
+                  >
+                    {option.value || option}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
             {defaultValue && (
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px", mt: 2 }}>
                 Default: {defaultValue}
               </Typography>
             )}

@@ -101,9 +101,6 @@ function RadioBlock({
           sx={{ p: 2, backgroundColor: "#f8f9fa", border: "2px dashed #dee2e6" }}
         >
           <Box sx={{ mb: 2 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: "12px" }}>
-              🔘 Radio Question:
-            </Typography>
             <Typography
               variant="h6"
               component="div"
@@ -129,11 +126,52 @@ function RadioBlock({
             >
               {questionDescription}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
-              Options: {options.length > 0 ? options.map((opt) => opt.value || opt).join(", ") : "None"}
-            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px", mb: 1 }}>
+                Options:
+              </Typography>
+              {options.map((option, index) => (
+                <Box 
+                  key={index} 
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    mb: 1,
+                    p: 1,
+                    border: '1px solid #e0e0e0',
+                    borderRadius: 1,
+                    backgroundColor: '#fff'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <Box
+                      sx={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: '50%',
+                        border: '2px solid #ccc',
+                        mr: 1,
+                        flexShrink: 0
+                      }}
+                    />
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        flex: 1,
+                        fontSize: "14px",
+                        minHeight: '20px',
+                        border: '1px dashed transparent',
+                        '&:hover': { border: '1px dashed #ccc' }
+                      }}
+                    >
+                      {option.value || option}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
             {defaultValue && (
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px" }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "12px", mt: 2 }}>
                 Default: {defaultValue}
               </Typography>
             )}
