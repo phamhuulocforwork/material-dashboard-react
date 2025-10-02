@@ -19,13 +19,27 @@ function DropdownBlock({
   onValueChange,
 }) {
   const [selectedValue, setSelectedValue] = useState(defaultValue);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [titleValue, setTitleValue] = useState(label);
+  const [descriptionValue, setDescriptionValue] = useState(questionDescription);
 
   useEffect(() => {
-    setSelectedValue(defaultValue);
-  }, [defaultValue]);
+    if (!hasUserInteracted && isPreview) {
+      setSelectedValue(defaultValue);
+    }
+  }, [defaultValue, hasUserInteracted, isPreview]);
+
+  useEffect(() => {
+    setTitleValue(label);
+  }, [label]);
+
+  useEffect(() => {
+    setDescriptionValue(questionDescription);
+  }, [questionDescription]);
 
   const handleChange = (event) => {
     const value = event.target.value;
+    setHasUserInteracted(true);
     setSelectedValue(value);
 
     if (onValueChange && isPreview) {
@@ -49,19 +63,19 @@ function DropdownBlock({
             </Typography>
             <Box ml={2} flex={1}>
               <Typography variant="h6" component="div" sx={{ fontWeight: 500, mb: 0.5 }}>
-                {label}
+                {titleValue || label}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {questionDescription}
+                {descriptionValue || questionDescription}
               </Typography>
 
               <TextField
                 fullWidth
                 select
                 variant="outlined"
-                value={selectedValue}
+                value={selectedValue || ""}
                 onChange={handleChange}
-                label={selectedValue ? "" : "Choose"}
+                label="Choose"
                 name={fieldName}
                 sx={{
                   "& .MuiInputBase-root": {
